@@ -1,0 +1,1 @@
+rustc-LLVM ERROR: Global variable '__rustc_debug_gdb_scripts_section__' has an invalid section specifier '.debug_gdb_scripts': mach-o section specifier requires a segment and section separated by a comma.
