@@ -1,17 +1,29 @@
-#![no_std] // dont link rust standard library
-#![no_main] // disable all rust-level entry points
+#![no_std] // dont link rust std lib
+#![no_main] // disable rust-level entry points
+
 use core::panic::PanicInfo;
 
-//this function is called on panic.
-#[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
+static HELLO: &[u8] = b"Hello World!"; // hello_world("print")
+
+#[unsafe(no_mangle)] // dont mangle name of function
+pub extern "C" fn _start() -> ! {
+    // this function is the entry point, since the linker looks for a function named
+    // _start by default, can change by changing linker scripts but will stick with
+    // _start for simplicity( and sloth)
+    let vga_buffer = 0xb8000 as *mut u8;
+
+    for (i, &byte) in HELLO.iter().enumerate() {
+        unsafe {
+            *vga_buffer.offset(i as isize * 2) = byte;
+            *vga_buffer.offset(i as isize * 2 + 1) = 0xb;
+        }
+    }
+
     loop {}
 }
 
-#[unsafe(no_mangle)] // dont mangle the name of this function, since it is called by the bootloader
-pub extern "C" fn _start() -> ! {
-    // this func is the entry point, since the linker loooks for a function names _start by
-    // default, we can change this name by changing the linker script, but we will stick with
-    // _start for simplicity.
+/// This function is called on panic.
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
     loop {}
 }
