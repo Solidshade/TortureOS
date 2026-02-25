@@ -1,29 +1,13 @@
-#![no_std] // dont link rust std lib
-#![no_main] // disable rust-level entry points
+use std::{env, fs}
 
-use core::panic::PanicInfo;
+fn main() {
+    let current_exe = env::current_exe().unwrap();
+    let uefi_target = current_exe.with_file_name("uefi.img");
+    let bios_target = current_exe.with_file_name("bios.img");
 
-static HELLO: &[u8] = b"Hello World!"; // hello_world("print")
+    fs::copy(env!("UEFI_IMAGE"), &uefi_target).unwrap();
+    fs::copy(env!("UEFI_BIOS"), &bios_target).unwrap();
 
-#[unsafe(no_mangle)] // dont mangle name of function
-pub extern "C" fn _start() -> ! {
-    // this function is the entry point, since the linker looks for a function named
-    // _start by default, can change by changing linker scripts but will stick with
-    // _start for simplicity( and sloth)
-    let vga_buffer = 0xb8000 as *mut u8;
-
-    for (i, &byte) in HELLO.iter().enumerate() {
-        unsafe {
-            *vga_buffer.offset(i as isize * 2) = byte;
-            *vga_buffer.offset(i as isize * 2 + 1) = 0xb;
-        }
-    }
-
-    loop {}
-}
-
-/// This function is called on panic.
-#[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    loop {}
+    println!("UEFI disk image at {}", uefi_target.display());
+    println!("BIOS image at {}", bios_target.display());
 }
