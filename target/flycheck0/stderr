@@ -1,0 +1,4 @@
+error: target path "/home/darius/Documents/TortureOS/x86_64-blog_os.json" is not a valid file
+
+Caused by:
+  No such file or directory (os error 2)
